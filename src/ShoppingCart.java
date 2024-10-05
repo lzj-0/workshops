@@ -1,10 +1,20 @@
 import java.util.ArrayList;
-import java.io.Console;
+import java.io.*;
 
 public class ShoppingCart {
     public ArrayList<String> arr;
+    private String username;
+
     public ShoppingCart() {
         arr = new ArrayList<String>();
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return this.username;
     }
 
     public void list() {
@@ -48,13 +58,67 @@ public class ShoppingCart {
         System.out.println("Exit/Terminate program: type any other thing");
     }
 
-    public static void main(String[] args) {
+    public ArrayList<String> login(String db, String username) throws IOException {
+        File f = new File(String.format("%s/%s.db", db, username));
+        this.setUsername(username);
+        if (!f.exists()) {
+            // read the file
+            boolean result = f.createNewFile();
+            if (result) {   
+                System.out.println("file created");
+            } else {
+                System.out.println("file creation failed");
+            }
+        }
+        ShoppingCartDB dbman = new ShoppingCartDB();
+        return dbman.loadCart(db, username);
+    }
+
+    public void save(String db) throws IOException {
+        if (this.getUsername() == null) {
+            System.out.println("Saving only allowed for login users. Please log in first.");
+        } else {
+            ShoppingCartDB dbman = new ShoppingCartDB();
+            dbman.saveCart(db, this.getUsername(), this.arr);
+        }
+    }
+
+    public void users() {
+        File dir = new File("cartdb");
+        System.out.println("The following users are registered");
+        int i = 1;
+        for (File f: dir.listFiles()) {
+            //System.out.printf("%d. %s", i, f.toString().split(".")[0]);
+            System.out.printf("%d. %s\n", i, f.getName().substring(0, f.getName().length() - 3));
+            i++;
+        }
+    }
+
+
+
+    public static void main(String[] args) throws IOException {
+        String dir;
+        if (args.length > 0 && (new File(args[0])).exists()) {
+            dir = args[0];
+        } else {
+            dir = "db";
+            File f = new File(dir);
+            if (!f.exists()) {
+                System.out.println("directory does not exist");
+                boolean created = f.mkdir();
+                if (created) {
+                    System.out.printf("new directory %s created\n", dir);
+                }
+            }
+        }
+
         ShoppingCart sc = new ShoppingCart();
+
         ShoppingCart.menu();
         Console cons = System.console();
         boolean force_exit = false;
         while (true) {
-            String input = cons.readLine(">>> ");
+            String input = cons.readLine("> ");
             String func = input.split(" ")[0];
 
             switch (func) {
@@ -69,6 +133,16 @@ public class ShoppingCart {
                     break;
                 case "delete":
                     sc.delete(Integer.parseInt(input.split(" ")[1]));
+                    break;
+                case "login":
+                    String user = input.split(" ")[1];
+                    sc.arr = sc.login(user, dir);
+                    break;
+                case "save":
+                    sc.save(dir);
+                    break;
+                case "users":
+                    sc.users();
                     break;
                 default:
                     String exit = cons.readLine("Invalid input, do you want to want to terminate program? ");

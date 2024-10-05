@@ -4,6 +4,7 @@ public class BankApp {
         BankAccount acc = new BankAccount("test");
         System.out.println(acc.getAccountNumber());
         System.out.println(acc.getHolderName());
+        System.out.println(acc.getCreatingDate());
         acc.deposit(1000.0f);
         acc.withdraw(100.0f);
         acc.get_transactions();
