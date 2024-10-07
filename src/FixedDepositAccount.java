@@ -66,7 +66,7 @@ public class FixedDepositAccount extends BankAccount {
     @Override
     public Float getBalance() {
         // this.getBalance() throws a infinite error loop
-        return super.getBalance()*(1 + this.getInterest()/100f);
+        return super.getBalance()*(1 + this.getInterest()/100.0f);
     }
     
 

@@ -99,4 +99,12 @@ public class BankAccount {
             System.out.println(tx);
         }
     }
+
+    @Override
+    public String toString() {
+        return "BankAccount [name=" + name + ", accountNumber=" + accountNumber + ", balance=" + balance
+                + ", transactions=" + transactions + ", closed=" + closed + ", creatingDate=" + creatingDate + "]";
+    }
+
+    
 }
