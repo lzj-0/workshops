@@ -2,6 +2,8 @@ package fc;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 // CMD
 // cd src
@@ -17,42 +19,32 @@ public class Server {
         int port = Integer.parseInt(args[0]);
         String file = args[1];
         // System.out.println("Current working directory: " + System.getProperty("user.dir"));
-        boolean exit = false;
+        // boolean exit = false;
 
         ServerSocket server = new ServerSocket(port);
-        Socket socket = server.accept();
+        ExecutorService thrPool = Executors.newFixedThreadPool(2);
 
-        InputStream is = socket.getInputStream();
-        DataInputStream dis = new DataInputStream(is);
 
-        OutputStream os = socket.getOutputStream();
-        DataOutputStream dos = new DataOutputStream(os);
+        int connections = 0;
 
         while (true) {
-            String command = dis.readUTF();
-            Cookie cookie = new Cookie();
+            String name = Thread.currentThread().getName();
+            System.out.printf("[%s] %d Waiting for connection\n", name, connections);
+            connections++;
 
-            switch (command) {
-                case "get-cookie":
-                    String output = cookie.getRandomCookie(cookie.read(file));
-                    dos.writeUTF("cookie-text " + output);
-                    System.out.println("cookie sent to Client");
-                    break;
-                case "close":
-                    exit = true;
-                    dos.writeUTF("exit");
-                    dos.close();
-                    os.close();
-                    dis.close();
-                    dos.close();
-                    socket.close();
-                    server.close();
-                    break;
-            }
-            if (exit) {
-                System.out.println("Closing server");
-                break;
-            }
+            Socket socket = server.accept();
+            System.out.printf("[%s] Got a client connection\n", name);
+
+            CookieClientHandler worker = new CookieClientHandler(socket, file);
+
+            thrPool.submit(worker);
+
+            System.out.printf("[%s] Submitted connection handler to thread pool\n", name);
+
+            // if (exit) {
+            //     System.out.println("Closing server");
+            //     break;
+            // }
         }
 
     }
