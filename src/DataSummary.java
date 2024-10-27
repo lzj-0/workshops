@@ -47,7 +47,7 @@ public class DataSummary {
         fr.close();
         apps.remove(10472);
         List<PhoneApp> appsNoNaN = apps.stream().filter(app -> !app.getRating().isNaN()).toList();
-
+        List<PhoneApp> appsNaN = apps.stream().filter(app -> app.getRating().isNaN()).toList();
         // List<PhoneApp> morethan45 = apps.stream().filter(app -> app.getRating() > 4.5).toList();
         // for (PhoneApp app: morethan45) {
         //     System.out.println(app);
@@ -60,10 +60,14 @@ public class DataSummary {
             Optional<PhoneApp> maxApp = categoryApps.stream().max((app1, app2) -> Float.compare(app1.getRating(), app2.getRating()));
             Float averageRating = categoryApps.stream().map(app -> app.getRating()).reduce(0.0f, (a, b) -> a + b) / categoryApps.stream().count();
             System.out.printf("Category: %s\n", category);
-            System.out.printf("Best App: %s (%f)\n", maxApp.get().getApp(), maxApp.get().getRating());
-            System.out.printf("Worst App: %s (%f)\n", minApp.get().getApp(), minApp.get().getRating());
-            System.out.printf("Average Rating: %f\n\n", averageRating);
+            System.out.printf(" Higest: %s (%f)\n", maxApp.get().getApp(), maxApp.get().getRating());
+            System.out.printf(" Lowest: %s (%f)\n", minApp.get().getApp(), minApp.get().getRating());
+            System.out.printf(" Average: %f\n", averageRating);
+            System.out.printf(" Count: %d\n", categoryApps.stream().count());
+            System.out.printf(" Discarded: %d\n\n", appsNaN.stream().filter(app -> 
+                                                        app.getCategory().equals(category)).count());
         }
+        System.out.printf("Total lines in file: %d", i);
 
     }
 }
